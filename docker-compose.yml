@@ -1,0 +1,62 @@
+services:
+  spark-master:
+    build:
+      context: .
+      dockerfile: Dockerfile          # ← reference to your custom Dockerfile    
+    container_name: spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master", "--host", "spark-master"]
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    volumes:
+      - spark-data:/opt/spark/data
+      - spark-samples:/opt/spark/samples
+      - ./spark-work-dir:/opt/spark/work-dir
+
+  spark-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile          # ← reference to your custom Dockerfile    
+    container_name: spark-worker
+    depends_on:
+      - spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./spark-data:/opt/spark/data
+      - ./spark-samples:/opt/spark/samples
+      - ./spark-work-dir:/opt/spark/work-dir      
+
+  spark-history:
+    build:
+      context: .
+      dockerfile: Dockerfile          # ← reference to your custom Dockerfile    
+    container_name: spark-history
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.history.HistoryServer"]
+    environment:
+      - SPARK_NO_DAEMONIZE=true
+      - SPARK_HISTORY_OPTS=-Dspark.history.fs.logDirectory=/tmp/spark-events
+    ports:
+      - "18080:18080"
+    volumes:
+      - ./spark-data:/opt/spark/data
+      - ./spark-samples:/opt/spark/samples
+      - ./spark-work-dir:/opt/spark/work-dir
+      - ./spark-events:/tmp/spark-events
+  
+volumes:
+  spark-events:
+  spark-data:
+  spark-samples:
+  spark-work-dir:
+  spark-logs:
+    driver: local
+    driver_opts:
+      type: none
+      device: /var/log/spark
+      o: bind

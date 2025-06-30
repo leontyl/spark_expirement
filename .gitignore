@@ -1,0 +1,39 @@
+# === Spark Project .gitignore ===
+
+# Ignore only generated subdirectories inside spark-work-dir
+spark-work-dir/artifacts/
+spark-work-dir/test-delta-table/
+spark-work-dir/test-delta-table/_delta_log/
+spark-work-dir/test-delta-table/_delta_log/**
+
+# Ignore other generated output
+spark-data/
+spark-events/
+spark-samples/
+
+# Delta Lake & Parquet
+**/_delta_log/
+**/_delta_log/**
+*.parquet
+
+# Spark staging and cache
+**/.sparkStaging/
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.iml
